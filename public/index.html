@@ -82,17 +82,7 @@
     </main>
 
     <script>
-        // Data Fallback (Default Yukaa Data)
-        // Digunakan jika API belum public / token tidak ada, agar UI tetap terlihat sempurna
-        const defaultProfile = {
-            name: "Yukaa",
-            quotes: "Welcome to my dark room~ Let's play together! 🧸🖤🩸",
-            profile_image_url: "https://i.pinimg.com/736x/21/bc/11/21bc11eb857e4e83f2a170562be3ed07.jpg" // Cute dark anime placeholder
-        };
-
-        const defaultLinks = [
-            { title: "My YouTube Channel 🎀", url: "#" }
-        ];
+      
 
         // Function to render links with UI styling
         const renderLinks = (links) => {
@@ -134,7 +124,7 @@
                 document.getElementById('loadingText').innerText = "Summoning links... 🦇";
                 
                 // GANTI 'yukaa' DENGAN USERNAME YANG KAMU BIKIN WAKTU REGISTER DI DATABASE!
-                const targetUsername = 'Admin'; 
+                const targetUsername = 'yuumeii'; 
                 
                 const res = await fetch(`/api/u/${targetUsername}`);
                 
