@@ -16,7 +16,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Mengizinkan request dari domain lain (jika frontend & backend dipisah nantinya)
 app.use(express.json({ limit: '10mb' })); // Limit diperbesar untuk handling base64 image
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static(path.join(__dirname, "public")));
+
+// Konfigurasi static folder agar URL tanpa .html (misal: /auth/signin) bisa otomatis terbaca
+app.use(express.static(path.join(__dirname, 'public'), {
+    extensions: ['html'] 
+}));
 
 // ==========================================
 // 2. CONFIGURATIONS (DB & IMAGEKIT)
