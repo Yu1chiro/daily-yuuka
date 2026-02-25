@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Litlink Yuuka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fire-red': '#D2042D',
+                        'madder': '#A8092D',
+                        'claret': '#7D0D2C',
+                        'choco': '#450C1C',
+                        'night': '#0D0A0B',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { display: none; }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .toast-enter { animation: slideInRight 0.3s ease-out forwards; }
+        .toast-leave { animation: slideOutRight 0.3s ease-in forwards; }
+    </style>
+    <script>
+        const checkToken = localStorage.getItem('token');
+        if (!checkToken) {
+            window.location.replace('/auth/signin'); 
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = 'block';
+            });
+        }
+    </script>
+</head>
+<body class="bg-night text-white min-h-screen relative overflow-x-hidden">
+
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+
+    <div id="confirmModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div id="confirmBox" class="bg-choco border-2 border-fire-red p-6 rounded-xl max-w-sm w-full shadow-[0_0_20px_rgba(210,4,45,0.3)] transform scale-95 opacity-0 transition-all duration-200">
+            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <svg class="w-6 h-6 text-fire-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Are you sure?
+            </h3>
+            <p id="confirmMessage" class="text-gray-300 mb-6 font-medium">Do you want to proceed?</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelBtn" class="px-5 py-2 bg-night border border-claret hover:bg-choco rounded-lg font-semibold transition">Cancel</button>
+                <button id="confirmBtn" class="px-5 py-2 bg-fire-red hover:bg-madder text-white rounded-lg font-semibold transition shadow-lg">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bg-choco border-b border-claret px-6 py-4 flex justify-between items-center">
+        <h1 class="text-sm lg:text-xl font-bold text-white tracking-wider">WELCOME YUUKA ₍ᐢ. .ᐢ₎ ₊˚⊹♡</h1>
+        <button id="logoutBtn" class="text-sm font-semibold bg-claret hover:bg-madder px-4 py-2 rounded transition">Logout</button>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+        <section class="bg-choco/20 p-6 rounded-xl border border-claret h-fit">
+            <h2 class="text-2xl font-bold mb-6 border-b border-claret pb-2">Profile Settings</h2>
+            <form id="profileForm" class="space-y-4">
+                <div class="flex flex-col items-center mb-6">
+                    <img id="profilePreview" src="https://via.placeholder.com/150/0D0A0B/D2042D?text=Upload" class="w-32 h-32 rounded-full object-cover border-4 border-fire-red mb-4">
+                    <label class="cursor-pointer bg-claret hover:bg-madder px-4 py-2 rounded text-sm transition">
+                        Choose Image
+                        <input type="file" id="imageInput" accept="image/*" class="hidden">
+                    </label>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Display Name</label>
+                    <input type="text" id="profileName" class="w-full px-4 py-2 rounded bg-night border border-claret focus:border-fire-red focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Quotes (Optional)</label>
+                    <textarea id="profileQuotes" rows="3" class="w-full px-4 py-2 rounded bg-night border border-claret focus:border-fire-red focus:outline-none transition resize-none"></textarea>
+                </div>
+                <button type="submit" id="saveProfileBtn" class="w-full py-3 bg-fire-red hover:bg-madder font-semibold rounded transition">Save Profile</button>
+            </form>
+        </section>
+
+        <section class="bg-choco/20 p-6 rounded-xl border border-claret">
+            <h2 class="text-2xl font-bold mb-6 border-b border-claret pb-2">Manage Links</h2>
+            <form id="linkForm" class="space-y-4 mb-8 bg-night p-4 rounded border border-claret">
+                <div>
+                    <input type="text" id="linkTitle" placeholder="Link Title" required class="w-full px-4 py-2 rounded bg-choco/30 border border-claret focus:border-fire-red focus:outline-none transition">
+                </div>
+                <div>
+                    <input type="url" id="linkUrl" placeholder="URL (https://...)" required class="w-full px-4 py-2 rounded bg-choco/30 border border-claret focus:border-fire-red focus:outline-none transition">
+                </div>
+                <button type="submit" class="w-full py-2 bg-claret hover:bg-madder font-semibold rounded transition">Add New Link</button>
+            </form>
+
+            <div id="linksContainer" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <script>
+        // API Token
+        const token = localStorage.getItem('token'); 
+        let base64ImageString = "";
+
+        // ==========================================
+        // CUSTOM UI HELPERS (TOAST & MODAL)
+        // ==========================================
+        
+        // Custom Toast / Alert
+        const showToast = (message, type = 'success') => {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            // Konfigurasi style berdasarkan tipe
+            const bgClass = type === 'success' ? 'bg-night border-fire-red' : 'bg-madder border-white';
+            const icon = type === 'success' 
+                ? `<svg class="w-6 h-6 text-fire-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+                : `<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            toast.className = `flex items-center gap-3 px-5 py-4 border-l-4 rounded shadow-lg toast-enter ${bgClass}`;
+            toast.innerHTML = `${icon} <span class="font-medium text-white">${message}</span>`;
+            
+            container.appendChild(toast);
+
+            // Hilangkan toast setelah 3 detik
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 3000);
+        };
+
+        // Custom Confirm Dialog (Returns Promise)
+        const customConfirm = (message) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmModal');
+                const confirmBox = document.getElementById('confirmBox');
+                const msgEl = document.getElementById('confirmMessage');
+                const cancelBtn = document.getElementById('cancelBtn');
+                const confirmBtn = document.getElementById('confirmBtn');
+
+                // Tampilkan Modal
+                msgEl.textContent = message;
+                modal.classList.remove('hidden');
+                
+                // Animasi pop-in (beri jeda sedikit agar transition jalan)
+                requestAnimationFrame(() => {
+                    confirmBox.classList.remove('scale-95', 'opacity-0');
+                    confirmBox.classList.add('scale-100', 'opacity-100');
+                });
+
+                // Fungsi untuk menutup modal dan meresolve promise
+                const close = (result) => {
+                    confirmBox.classList.remove('scale-100', 'opacity-100');
+                    confirmBox.classList.add('scale-95', 'opacity-0');
+                    
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        resolve(result); // true/false
+                    }, 200);
+                    
+                    cancelBtn.removeEventListener('click', onCancel);
+                    confirmBtn.removeEventListener('click', onConfirm);
+                };
+
+                const onCancel = () => close(false);
+                const onConfirm = () => close(true);
+
+                cancelBtn.addEventListener('click', onCancel);
+                confirmBtn.addEventListener('click', onConfirm);
+            });
+        };
+
+
+        // ==========================================
+        // FETCH & CRUD LOGIC
+        // ==========================================
+
+        const fetchProfile = async () => {
+            try {
+                const res = await fetch('/api/user/profile', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.name) document.getElementById('profileName').value = data.name;
+                    if (data.quotes) document.getElementById('profileQuotes').value = data.quotes;
+                    if (data.profile_image_url) document.getElementById('profilePreview').src = data.profile_image_url;
+                }
+            } catch (error) {
+                showToast("Failed to load profile", "error");
+            }
+        };
+
+        const fetchLinks = async () => {
+            try {
+                const res = await fetch('/api/links', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    const links = await res.json();
+                    const container = document.getElementById('linksContainer');
+                    container.innerHTML = links.map(link => `
+                        <div class="flex justify-between items-center bg-night p-4 rounded border border-claret group hover:border-fire-red transition">
+                            <div class="overflow-hidden">
+                                <h3 class="font-semibold text-white truncate">${link.title}</h3>
+                                <a href="${link.url}" target="_blank" class="text-sm text-gray-400 truncate hover:text-fire-red">${link.url}</a>
+                            </div>
+                            <button onclick="deleteLink(${link.id})" class="ml-4 text-gray-500 hover:text-fire-red transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                showToast("Failed to load links", "error");
+            }
+        };
+
+        document.getElementById('imageInput').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profilePreview').src = e.target.result;
+                    base64ImageString = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Saving...';
+            
+            const payload = {
+                name: document.getElementById('profileName').value,
+                quotes: document.getElementById('profileQuotes').value,
+                imageBase64: base64ImageString || null
+            };
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    base64ImageString = ""; 
+                    showToast('Profile updated successfully!', 'success');
+                } else {
+                    showToast('Failed to update profile', 'error');
+                }
+            } catch (error) {
+                showToast('Network error occurred', 'error');
+            } finally {
+                btn.textContent = originalText;
+            }
+        });
+
+        document.getElementById('linkForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('linkTitle').value;
+            const url = document.getElementById('linkUrl').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Adding...';
+            
+            try {
+                const res = await fetch('/api/links', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ title, url })
+                });
+                
+                if (res.ok) {
+                    document.getElementById('linkForm').reset();
+                    fetchLinks(); 
+                    showToast('Link added successfully!', 'success');
+                } else {
+                    showToast('Failed to add link', 'error');
+                }
+            } catch (error) {
+                showToast('Network error occurred', 'error');
+            } finally {
+                btn.textContent = originalText;
+            }
+        });
+
+        window.deleteLink = async (id) => {
+            // Gunakan Custom Confirm! Menggunakan await karena mengembalikan Promise
+            const isConfirmed = await customConfirm('Are you sure you want to delete this cute link? 🦇');
+            
+            if (isConfirmed) {
+                try {
+                    const res = await fetch(`/api/links/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        fetchLinks();
+                        showToast('Link deleted 🥀', 'success');
+                    } else {
+                        showToast('Failed to delete link', 'error');
+                    }
+                } catch (error) {
+                    showToast('Network error occurred', 'error');
+                }
+            }
+        };
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const isConfirmed = await customConfirm('Are you sure you want to log out?');
+            if (isConfirmed) {
+                localStorage.removeItem('token');
+                window.location.href = '/auth/signin';
+            }
+        });
+
+        // Jalankan fetch saat halaman selesai di-load
+        fetchProfile();
+        fetchLinks();
+    </script>
+</body>
+</html>
