@@ -129,37 +129,38 @@
         };
 
         // Fetch logic
-       const fetchPublicData = async () => {
-            try {
-                document.getElementById('loadingText').innerText = "Summoning links... 🦇";
-                
-                // GANTI 'yukaa' DENGAN USERNAME YANG KAMU BIKIN WAKTU REGISTER DI DATABASE!
-                const targetUsername = 'Admin'; 
-                
-                const res = await fetch(`/api/u/${targetUsername}`);
-                
-                if (res.ok) {
-                    const data = await res.json();
-                    
-                    // Update Profile dari Database
-                    document.getElementById('profileName').innerText = data.profile.name || targetUsername;
-                    if (data.profile.quotes) document.getElementById('profileQuotes').innerText = data.profile.quotes;
-                    if (data.profile.profile_image_url) document.getElementById('profileImage').src = data.profile.profile_image_url;
-                    
-                    // Render Links dari Database
-                    renderLinks(data.links);
-                } else {
-                    throw new Error("Gagal fetch data dari server");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                // Fallback UI kalau database lagi down atau username gak ketemu
-                document.getElementById('profileName').innerText = defaultProfile.name;
-                document.getElementById('profileQuotes').innerText = defaultProfile.quotes;
-                document.getElementById('profileImage').src = defaultProfile.profile_image_url;
-                renderLinks(defaultLinks);
-            }
-        };
+      const fetchPublicData = async () => {
+    try {
+        document.getElementById('loadingText').innerText = "Summoning links... 🦇";
+        
+        // Langsung targetkan User dengan ID 1 secara spesifik
+        const targetId = 1; 
+        
+        // Memanggil endpoint dengan parameter ID
+        const res = await fetch(`/api/u/${targetId}`);
+        
+        if (res.ok) {
+            const data = await res.json();
+            
+            // Update Profile dari Database
+            document.getElementById('profileName').innerText = data.profile.name || "User";
+            if (data.profile.quotes) document.getElementById('profileQuotes').innerText = data.profile.quotes;
+            if (data.profile.profile_image_url) document.getElementById('profileImage').src = data.profile.profile_image_url;
+            
+            // Render Links dari Database
+            renderLinks(data.links);
+        } else {
+            throw new Error("Gagal fetch data dari server");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        // Fallback UI kalau database lagi down atau user dengan ID 1 tidak ada
+        document.getElementById('profileName').innerText = defaultProfile.name;
+        document.getElementById('profileQuotes').innerText = defaultProfile.quotes;
+        document.getElementById('profileImage').src = defaultProfile.profile_image_url;
+        renderLinks(defaultLinks);
+    }
+};
         // Add custom shine keyframe dynamically
         const style = document.createElement('style');
         style.innerHTML = `
