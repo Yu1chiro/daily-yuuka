@@ -59,7 +59,19 @@ const authenticateToken = (req, res, next) => {
         next(); // Melanjutkan ke controller
     });
 };
-
+// Route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin", "admin.html"));
+});
+app.get("/auth/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "auth", "register.html"));
+});
+app.get("/auth/signin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "auth", "signin.html"));
+});
 // ==========================================
 // 4. AUTHENTICATION ROUTES
 // ==========================================
@@ -249,19 +261,7 @@ app.get('/api/u/:username', async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching public profile' });
     }
 });
-// Route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin", "admin.html"));
-});
-app.get("/auth/register", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "auth", "register.html"));
-});
-app.get("/auth/signin", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "auth", "signin.html"));
-});
+
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on http://localhost:${PORT}`);
