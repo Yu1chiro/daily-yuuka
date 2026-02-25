@@ -16,11 +16,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Mengizinkan request dari domain lain (jika frontend & backend dipisah nantinya)
 app.use(express.json({ limit: '10mb' })); // Limit diperbesar untuk handling base64 image
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Konfigurasi static folder agar URL tanpa .html (misal: /auth/signin) bisa otomatis terbaca
-app.use(express.static(path.join(__dirname, 'public'), {
-    extensions: ['html'] 
-}));
+app.use(express.static(path.join(__dirname, "public")));
 
 // ==========================================
 // 2. CONFIGURATIONS (DB & IMAGEKIT)
@@ -262,11 +258,7 @@ app.get('/api/u/:username', async (req, res) => {
     }
 });
 
-if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });
-}
 
-// BARIS INI WAJIB ADA AGAR API BISA JALAN DI VERCEL
-module.exports = app;
