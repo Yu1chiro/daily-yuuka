@@ -129,54 +129,37 @@
         };
 
         // Fetch logic
-        const fetchPublicData = async () => {
-            // Catatan: Karena di server.js Anda Endpoint /api/user/profile dan /api/links 
-            // masih membutuhkan 'authenticateToken', di simulasi ini kita gunakan fallback
-            // Jika Anda sudah membuat endpoint PUBLIC (tanpa middleware auth), ganti fetch di bawah ini.
-            
+       const fetchPublicData = async () => {
             try {
-                // Mencoba mengambil token dari localStorage (jika user sedang login di browser yang sama)
-                const token = localStorage.getItem('token');
+                document.getElementById('loadingText').innerText = "Summoning links... 🦇";
                 
-                if (!token) {
-                    throw new Error("No token, using default public view");
-                }
-
-                // Fetch Profile
-                const profileRes = await fetch('/api/user/profile', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                // GANTI 'yukaa' DENGAN USERNAME YANG KAMU BIKIN WAKTU REGISTER DI DATABASE!
+                const targetUsername = 'yukaa'; 
                 
-                if (profileRes.ok) {
-                    const profileData = await profileRes.json();
-                    document.getElementById('profileName').innerText = profileData.name || defaultProfile.name;
-                    document.getElementById('profileQuotes').innerText = profileData.quotes || defaultProfile.quotes;
-                    if (profileData.profile_image_url) {
-                        document.getElementById('profileImage').src = profileData.profile_image_url;
-                    }
-                }
-
-                // Fetch Links
-                const linksRes = await fetch('/api/links', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (linksRes.ok) {
-                    const linksData = await linksRes.json();
-                    renderLinks(linksData);
+                const res = await fetch(`/api/u/${targetUsername}`);
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    // Update Profile dari Database
+                    document.getElementById('profileName').innerText = data.profile.name || targetUsername;
+                    if (data.profile.quotes) document.getElementById('profileQuotes').innerText = data.profile.quotes;
+                    if (data.profile.profile_image_url) document.getElementById('profileImage').src = data.profile.profile_image_url;
+                    
+                    // Render Links dari Database
+                    renderLinks(data.links);
                 } else {
-                    renderLinks(defaultLinks);
+                    throw new Error("Gagal fetch data dari server");
                 }
-
             } catch (error) {
-                // Fallback to Yukaa's default aesthetic UI if API fails / not public yet
+                console.error("Error:", error);
+                // Fallback UI kalau database lagi down atau username gak ketemu
                 document.getElementById('profileName').innerText = defaultProfile.name;
                 document.getElementById('profileQuotes').innerText = defaultProfile.quotes;
                 document.getElementById('profileImage').src = defaultProfile.profile_image_url;
                 renderLinks(defaultLinks);
             }
         };
-
         // Add custom shine keyframe dynamically
         const style = document.createElement('style');
         style.innerHTML = `
