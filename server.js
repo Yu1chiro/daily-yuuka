@@ -262,10 +262,11 @@ app.get("/auth/register", (req, res) => {
 app.get("/auth/signin", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "auth", "signin.html"));
 });
-// ==========================================
-// 7. START SERVER
-// ==========================================
+if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });
+}
 
+// BARIS INI WAJIB ADA AGAR API BISA JALAN DI VERCEL
+module.exports = app;
